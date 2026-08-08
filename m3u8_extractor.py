@@ -602,56 +602,95 @@ class M3U8Extractor:
     # Save list
     # =====================================================
 
-    def save_list(self):
+def save_list(self):
 
-        if not self.results:
+    if not self.results:
 
-            messagebox.showinfo(
-                "No URLs",
-                "There are no URLs to save.",
-                parent=self.root
-            )
-
-            return
-
-        path = filedialog.asksaveasfilename(
-            parent=self.root,
-            title="Save M3U8 URL list",
-            defaultextension=".txt",
-            filetypes=[
-                ("Text files", "*.txt"),
-                ("All files", "*.*")
-            ]
+        messagebox.showinfo(
+            "No URLs",
+            "There are no URLs to save.",
+            parent=self.root
         )
 
-        if not path:
-            return
+        return
 
-        try:
+    path = filedialog.asksaveasfilename(
+        parent=self.root,
+        title="Save M3U8 URL list",
+        defaultextension=".csv",
+        filetypes=[
+            ("CSV files", "*.csv"),
+            ("Text files", "*.txt"),
+            ("All files", "*.*")
+        ]
+    )
 
-            with open(
-                path,
-                "w",
-                encoding="utf-8"
-            ) as f:
+    if not path:
+        return
 
-                for url in self.results:
+    try:
 
-                    f.write(
-                        url + "\n"
-                    )
+        import csv
 
-            self.status_var.set(
-                f"Saved {len(self.results)} URL(s)."
-            )
+        with open(
+            path,
+            "w",
+            encoding="utf-8-sig",
+            newline=""
+        ) as f:
 
-        except Exception as e:
+            writer = csv.writer(f)
 
-            messagebox.showerror(
-                "Save error",
-                str(e),
-                parent=self.root
-            )
+            # Header
+            writer.writerow([
+                "Number",
+                "Type",
+                "URL"
+            ])
+
+            # Results
+            for number, url in enumerate(
+                self.results,
+                start=1
+            ):
+
+                # Find the type from the TreeView
+                item_id = str(number - 1)
+
+                values = self.tree.item(
+                    item_id,
+                    "values"
+                )
+
+                result_type = (
+                    values[1]
+                    if values
+                    else "M3U8"
+                )
+
+                writer.writerow([
+                    number,
+                    result_type,
+                    url
+                ])
+
+        self.status_var.set(
+            f"Saved {len(self.results)} URL(s) to CSV."
+        )
+
+        messagebox.showinfo(
+            "Saved",
+            f"Saved {len(self.results)} URL(s) to:\n\n{path}",
+            parent=self.root
+        )
+
+    except Exception as e:
+
+        messagebox.showerror(
+            "Save error",
+            str(e),
+            parent=self.root
+        )
 
     # =====================================================
     # Clear
