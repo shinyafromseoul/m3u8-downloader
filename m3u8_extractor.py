@@ -602,95 +602,95 @@ class M3U8Extractor:
     # Save list
     # =====================================================
 
-def save_list(self):
+    def save_list(self):
 
-    if not self.results:
+        if not self.results:
 
-        messagebox.showinfo(
-            "No URLs",
-            "There are no URLs to save.",
-            parent=self.root
+            messagebox.showinfo(
+                "No URLs",
+                "There are no URLs to save.",
+                parent=self.root
+            )
+
+            return
+
+        path = filedialog.asksaveasfilename(
+            parent=self.root,
+            title="Save M3U8 URL list",
+            defaultextension=".csv",
+            filetypes=[
+                ("CSV files", "*.csv"),
+                ("Text files", "*.txt"),
+                ("All files", "*.*")
+            ]
         )
 
-        return
+        if not path:
+            return
 
-    path = filedialog.asksaveasfilename(
-        parent=self.root,
-        title="Save M3U8 URL list",
-        defaultextension=".csv",
-        filetypes=[
-            ("CSV files", "*.csv"),
-            ("Text files", "*.txt"),
-            ("All files", "*.*")
-        ]
-    )
+        try:
 
-    if not path:
-        return
+            import csv
 
-    try:
+            with open(
+                path,
+                "w",
+                encoding="utf-8-sig",
+                newline=""
+            ) as f:
 
-        import csv
+                writer = csv.writer(f)
 
-        with open(
-            path,
-            "w",
-            encoding="utf-8-sig",
-            newline=""
-        ) as f:
-
-            writer = csv.writer(f)
-
-            # Header
-            writer.writerow([
-                "Number",
-                "Type",
-                "URL"
-            ])
-
-            # Results
-            for number, url in enumerate(
-                self.results,
-                start=1
-            ):
-
-                # Find the type from the TreeView
-                item_id = str(number - 1)
-
-                values = self.tree.item(
-                    item_id,
-                    "values"
-                )
-
-                result_type = (
-                    values[1]
-                    if values
-                    else "M3U8"
-                )
-
+                # Header
                 writer.writerow([
-                    number,
-                    result_type,
-                    url
+                    "Number",
+                    "Type",
+                    "URL"
                 ])
 
-        self.status_var.set(
-            f"Saved {len(self.results)} URL(s) to CSV."
-        )
+                # Results
+                for number, url in enumerate(
+                    self.results,
+                    start=1
+                ):
 
-        messagebox.showinfo(
-            "Saved",
-            f"Saved {len(self.results)} URL(s) to:\n\n{path}",
-            parent=self.root
-        )
+                    # Find the type from the TreeView
+                    item_id = str(number - 1)
 
-    except Exception as e:
+                    values = self.tree.item(
+                        item_id,
+                        "values"
+                    )
 
-        messagebox.showerror(
-            "Save error",
-            str(e),
-            parent=self.root
-        )
+                    result_type = (
+                        values[1]
+                        if values
+                        else "M3U8"
+                    )
+
+                    writer.writerow([
+                        number,
+                        result_type,
+                        url
+                    ])
+
+            self.status_var.set(
+                f"Saved {len(self.results)} URL(s) to CSV."
+            )
+
+            messagebox.showinfo(
+                "Saved",
+                f"Saved {len(self.results)} URL(s) to:\n\n{path}",
+                parent=self.root
+            )
+
+        except Exception as e:
+
+            messagebox.showerror(
+                "Save error",
+                str(e),
+                parent=self.root
+            )
 
     # =====================================================
     # Clear
